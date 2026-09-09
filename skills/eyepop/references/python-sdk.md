@@ -9,7 +9,7 @@ For building a Python application. Everyday inference stays on the CLI: `eyepop 
 | A live RTSP or RTMP camera | | `endpoint.load_from("rtsp://...")` |
 | Track objects across frames | | a tracking component, whole video or stream to one endpoint |
 | Throttle a pretrained model on video | | `upload(video, fps="1/1")` |
-| Create and test an ability | `eyepop create ability`, `eyepop run --model <name>` | `assets/register_ability.py` when the project must own the ability and its alias |
+| Create and test an ability | `eyepop create ability --publish`, `eyepop run --model <alias>` | `assets/register_ability.py` when the project must own the ability and its alias |
 | Build a dataset | `eyepop create dataset --media-path ./images --recursive --partition test` | |
 | Ground truth on many assets | | `update_asset_ground_truth` |
 | A model trained in the dashboard | `eyepop run --model <uuid>` | `InferenceComponent(abilityUuid="<uuid>")` |
@@ -116,7 +116,7 @@ pop = Pop(components=[
 ])
 ```
 
-- Name a model with `ability="<alias>:<tag>"` or, for a model trained in the dashboard, `abilityUuid="<uuid>"`. The two are mutually exclusive; `model` and `modelUuid` are deprecated spellings.
+- Name a model with `ability="<alias>:<tag>"`. `abilityUuid="<uuid>"` is the fallback for a model trained in the dashboard that has no alias yet; the two are mutually exclusive, and `model` and `modelUuid` are deprecated spellings.
 - A custom VLM ability carries its prompt server-side: reference it by alias and send no prompt at inference. The exception is `eyepop.localize-objects:latest`, an open-vocabulary detector that takes `params={"prompts": [{"prompt": "person"}]}`.
 - `TrackingComponent` sits beside the second inference inside `CropForward.targets` and gives each object a stable `trackId` across frames. Tracking state lives in the endpoint, so feed it one `upload(video)` or `load_from(rtsp)`; uploading extracted frames one by one resets it.
 - `InferenceComponent(targetFps=...)` rates one component; `fps` on the source rates the whole Pop.

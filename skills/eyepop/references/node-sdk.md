@@ -138,7 +138,7 @@ Renderers compose: pass several to draw boxes, poses, and contours on one canvas
 
 ## Data endpoint
 
-`EyePop.dataEndpoint(...)` manages datasets and VLM abilities from Node: `listVlmAbilities()`, `getVlmAbility(uuid)`, `createVlmAbility(create, groupUuid)`, `updateVlmAbility(uuid, update)`, `deleteVlmAbility(uuid)`, `publishVlmAbility(uuid, aliasName, tagName)`, `listVlmAbilityGroups()`, `listVlmAbilityEvaluations(uuid)`. Registering an ability is create group, create ability, publish with the alias, tag `latest`; naming rules and result shapes are the same as in [python-sdk.md](python-sdk.md#data-endpoint-datasets-ground-truth-and-vlm-abilities).
+`EyePop.dataEndpoint(...)` manages datasets and VLM abilities from Node: `listVlmAbilities()`, `getVlmAbility(uuid)`, `createVlmAbility(create, groupUuid)`, `updateVlmAbility(uuid, update)`, `deleteVlmAbility(uuid)`, `publishVlmAbility(uuid, aliasName, tagName)`, `listVlmAbilityGroups()`, `listVlmAbilityEvaluations(uuid)`. Registering an ability is create group, create ability, publish with the alias, tag `latest`; naming rules and result shapes are the same as in [python-sdk.md](python-sdk.md#data-endpoint-datasets-ground-truth-vlm-abilities).
 
 ## Local mode (on-premise instance)
 

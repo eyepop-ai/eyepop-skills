@@ -38,7 +38,7 @@
 
 ## `run` details
 
-- Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` resolves a pretrained model alias first and composes it into a single-component Pop; anything else is looked up as an ability by name or UUID and runs through VLM inference. `--pop` takes a built-in handle from `eyepop get pops`, which reads the built-in catalog; a UUID is refused with `No pop found with UUID`. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
+- Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` takes an alias, from `get models` or the ALIAS column of `get abilities`, and runs it as a single-component pipeline; an ability's bare name or UUID is the prompted VLM run, the only form `--prompt` applies to. `--pop` takes a built-in handle from `eyepop get pops` (`person`, `people-common-objects`, `vehicles-traffic-cam`, and so on) or a dashboard-saved Pop by the UUID in its POP column; a saved Pop's display name is refused with `is a pop flow, which is named by its UUID`, and a model alias with `No pop found matching`. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
 - Inputs: positionals and `--media-path`, each a file, directory, or HTTP(S) URL; `-r/--recursive` descends into directories. `-p/--prompt` sends a text prompt to a VLM ability.
 - `--concurrency` 1-32, default 4. `--timeout` is per result: the inference poll on model runs (default 3600 s), the worker response on Pop and session runs (default 120 s).
 - `--no-cache` applies to VLM ability runs, with or without `--prompt`; refused on `--pop`, `--session`, and published models.
@@ -53,7 +53,7 @@
 | `--name`, `--description` | Identity. The description is also what the prompt-creation agent reads, so make it task-specific |
 | `--prompt` | The instruction to the vision-language model; name the task and restrict the outputs |
 | `--class <label>` (repeatable) | Fixed output label set the raw answer is mapped into |
-| `--publish` | Publish after creation. The published ability is immutable and has no alias: the CLI runs it by name or UUID, and a Pop needs an alias minted later ([abilities.md](abilities.md#give-it-an-alias-for-the-sdk)) |
+| `--publish` | Publish after creation, under the account's namespace; the CLI prints the alias that `run --model`, a Pop, and a deployment reference. The published ability is immutable ([abilities.md](abilities.md#aliases)) |
 | `--public` | Make the ability public |
 | `--image-size` | Max dimension media is resized to before inference; the main cost and speed lever |
 | `--fps`, `--max-frames`, `--min-frames` | Video sampling |
@@ -66,7 +66,7 @@ Typical settings: object detection 512-640; find an event in video 512-640 at 2-
 
 ## Evaluation details
 
-- `--ability` and `--dataset` take a name or UUID. Datasets also address as `name@3` or `name@latest`.
+- `--ability` takes an alias, name, or UUID; `--dataset` a name or UUID. Datasets also address as `name@3` or `name@latest`.
 - `--partition` and `--filter-class` repeat to widen the selection. `--video-chunk-length` (nanoseconds) and `--video-chunk-overlap` (0.0-1.0) shape video scoring.
 - Timing: the CLI polls for at least 20 seconds. `--timeout` above 20 waits longer; below 20 it shortens only the server's own wait. `--no-wait` returns the request ID at once.
 - `get evals <request_id>` shows one run (`--watch` until it completes, `--timeout` as above); `get evals --ability <a>` or `--dataset <d> [--dataset-version <n>]` lists history; `--filter status=completed` narrows it.

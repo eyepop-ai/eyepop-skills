@@ -1,5 +1,5 @@
 ---
 type: llm
-criteria: "The answer says the CLI's --publish mints no alias, so a Pop cannot reference the ability by name; the fix is to mint an alias (dashboard, or the Python data endpoint's publish_vlm_ability plus add_vlm_ability_alias with tag latest), and the alias must begin with the account's namespace prefix in the form <namespace>.<task>.<name>."
+criteria: "The answer says a Pop references the ability by its alias, in the form <namespace>.<task>.<name>:latest (for example <namespace>.classify.shelf-check:latest), not by the bare name; the alias was printed by `create ability --publish` and is listed in the ALIAS column of `eyepop get abilities --mine`. It does not tell the user to mint the alias by hand as the first step."
 target: last_message
 ---
