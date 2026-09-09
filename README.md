@@ -49,6 +49,8 @@ skills/eyepop/
   references/on-premise.md instances and how runs route on that machine
   references/models.md     pretrained model catalog with label sets
   assets/pop.*.json        Pop documents for eyepop create deployment --pop
+  assets/*.py              runnable Python templates: batch a folder, sample a video, crop-then-classify, register an ability
+  assets/env.example       the credentials those templates read
 evals/                     claude plugin eval cases and graders
 ```
 

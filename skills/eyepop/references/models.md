@@ -41,6 +41,8 @@ Every pretrained model is referenced by alias with a tag, `eyepop.person:latest`
 
 Structured OCR abilities that return typed fields (driver's license, invoice, and so on) live in the Abilities Hub; list yours with `eyepop get abilities -q ocr`.
 
+`eyepop.image-contents:latest` is deprecated. Code that used it for free-text description moves to a custom `describe` ability ([abilities.md](abilities.md)).
+
 ## Segmentation
 
 | Alias | Returns |

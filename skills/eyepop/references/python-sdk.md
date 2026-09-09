@@ -2,6 +2,8 @@
 
 `pip install eyepop`, Python 3.12+. Docs: https://docs.eyepop.ai/developer-documentation/sdks/python (Configuration, Running Inference, Composable Pops, Data Endpoint). Package source: https://github.com/eyepop-ai/eyepop-sdk-python.
 
+Runnable templates, each a complete program that takes its inputs on the command line: `assets/batch_folder.py` (a folder of images, results cached as JSON), `assets/video_jsonl.py` (a video sampled at a frame rate, results in a JSONL sidecar), `assets/crop_classify.py` (detect, then classify each crop with your own ability), `assets/register_ability.py` (register and alias a custom ability), and `assets/env.example` for the credentials they read.
+
 ## Entry points
 
 | Need | Call |
@@ -74,6 +76,18 @@ Per-source options, all keyword arguments on `upload` / `load_from`:
 
 Set scene options once for every source with `Pop(defaults=SourceDefaults(fps="1/1", roi=..., motionDetect=True))`.
 
+Which call for which job:
+
+| Need | Call |
+|---|---|
+| Images one at a time | `endpoint.upload(path)` per image, on one connected endpoint |
+| A folder of images with results kept on disk | `assets/batch_folder.py` |
+| Recorded video sampled for a VLM ability | `endpoint.upload(video, fps="1/1")`, results to a JSONL sidecar: `assets/video_jsonl.py` |
+| Track objects across a video | `endpoint.upload(video)` with a tracking component and no `fps` throttle, so every frame reaches the tracker |
+| A live camera | `endpoint.load_from("rtsp://...")`, with `fps` and motion gating on the Pop defaults |
+| Classify each detection with your own labels | Detect, then `CropForward` into a custom `image-classify` ability: `assets/crop_classify.py` |
+| A model trained in the dashboard | `InferenceComponent(abilityUuid="<uuid>")` |
+
 ## Composable Pops
 
 Detect, forward each crop, run the next model on the crop. `CropForward` passes each detection, `FullForward` the whole image; both take `includeClasses`.
@@ -143,8 +157,8 @@ with EyePopSdk.dataEndpoint(api_key=API_KEY, account_id=ACCOUNT_UUID) as data:
 
     data.update_asset_ground_truth(
         asset_uuid=asset.uuid, dataset_uuid=dataset.uuid,
-        ground_truth=Prediction(source_width=1920, source_height=1080,
-                                classes=[PredictedClass(classLabel="helmet", confidence=1.0)]),
+        ground_truth=[Prediction(source_width=1920, source_height=1080,
+                                 classes=[PredictedClass(classLabel="helmet", confidence=1.0)])],
     )
     for a in data.list_assets(dataset_uuid=dataset.uuid, include_annotations=True):
         print(a.uuid, a.status)
@@ -183,7 +197,9 @@ with EyePopSdk.dataEndpoint(api_key=API_KEY, account_id=ACCOUNT_UUID) as data:
 - The `<task>` segment picks the result shape: `image-classify` answers in `classes`, `describe` in `texts`. Other task words have no defined shape.
 - `max_new_tokens` around 10 for a label, around 350 for a description. `image_size` 512 for most crops.
 - Registration is not idempotent: check `list_vlm_abilities()` first, and delete the old group before re-registering.
-- A freshly published alias can take a minute to resolve on a worker. Retry `set_pop` when the error mentions model uuids not found or an unresolved alias.
+- A freshly published alias can take a little while to resolve on a worker, and that first failure is a client-side status the SDK will not retry. Wait for it once, right after registering, by opening a session against the alias until it succeeds; `assets/register_ability.py` does all of the above.
+
+The SDK retries on its own: 5xx responses with exponential backoff up to three attempts inside 30 seconds, an expired token once with a refresh, a lost worker once with a fresh config. Inference scripts need no retry wrapper of their own.
 
 Experimental Data API calls, subject to change: `infer_asset(asset_uuid, InferRequest(text_prompt=...))` and `evaluate_dataset(EvaluateRequest(dataset_uuid=..., infer=InferRequest(...)))`. The CLI's `eyepop evaluate` is the stable path.
 

@@ -108,7 +108,7 @@ eyepop delete deployment "$UUID" --yes
 | Task | Read |
 |---|---|
 | Create, test, iterate, and alias an ability; build a dataset, add ground truth, evaluate, read metrics | [references/abilities.md](references/abilities.md) |
-| Write Python: sessions, media forms, `fps` and other source options, composable Pops, reading results, the data endpoint, local mode | [references/python-sdk.md](references/python-sdk.md) |
+| Write Python: sessions, media forms, `fps` and other source options, composable Pops, reading results, the data endpoint, local mode; runnable templates in `assets/*.py` | [references/python-sdk.md](references/python-sdk.md) |
 | Write Node or TypeScript, browser, or React Native: the same, plus canvas rendering | [references/node-sdk.md](references/node-sdk.md) |
 | Stand up or operate an on-premise instance; how runs route on that machine | [references/on-premise.md](references/on-premise.md) |
 | Pick a pretrained model; label sets | [references/models.md](references/models.md) |
