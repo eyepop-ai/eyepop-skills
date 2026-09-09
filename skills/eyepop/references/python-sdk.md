@@ -1,8 +1,20 @@
 # Python SDK
 
-`pip install eyepop`, Python 3.12+. Docs: https://docs.eyepop.ai/developer-documentation/sdks/python (Configuration, Running Inference, Composable Pops, Data Endpoint). Package source: https://github.com/eyepop-ai/eyepop-sdk-python.
+For building a Python application. Everyday inference stays on the CLI: `eyepop run --model <alias> ./photos --recursive --json > results.json` is the whole job for a folder, a video, or a URL, and `eyepop create ability`, `eyepop create dataset --media-path`, and `eyepop evaluate` cover abilities and datasets.
 
-Runnable templates, each a complete program that takes its inputs on the command line: `assets/batch_folder.py` (a folder of images, results cached as JSON), `assets/video_jsonl.py` (a video sampled at a frame rate, results in a JSONL sidecar), `assets/crop_classify.py` (detect, then classify each crop with your own ability), `assets/register_ability.py` (register and alias a custom ability), and `assets/env.example` for the credentials they read.
+| Need | CLI | Code |
+|---|---|---|
+| Images, a folder, a video, or an HTTP(S) URL through a model or ability | `eyepop run ... --json` | |
+| A saved multi-stage Pop | `eyepop create deployment --pop pop.json`, then `eyepop run --session` | `Pop(...)` in a transient session when no deployment is wanted: `assets/crop_classify.py` |
+| A live RTSP or RTMP camera | | `endpoint.load_from("rtsp://...")` |
+| Track objects across frames | | a tracking component, whole video or stream to one endpoint |
+| Throttle a pretrained model on video | | `upload(video, fps="1/1")` |
+| Create and test an ability | `eyepop create ability`, `eyepop run --model <name>` | `assets/register_ability.py` when the project must own the ability and its alias |
+| Build a dataset | `eyepop create dataset --media-path ./images --recursive --partition test` | |
+| Ground truth on many assets | | `update_asset_ground_truth` |
+| A model trained in the dashboard | `eyepop run --model <uuid>` | `InferenceComponent(abilityUuid="<uuid>")` |
+
+`pip install eyepop`, Python 3.12+. Docs: https://docs.eyepop.ai/developer-documentation/sdks/python (Configuration, Running Inference, Composable Pops, Data Endpoint). Package source: https://github.com/eyepop-ai/eyepop-sdk-python. Templates, each a complete program taking its inputs on the command line: `assets/crop_classify.py`, `assets/register_ability.py`, with `assets/env.example` for the credentials they read.
 
 ## Entry points
 
@@ -74,19 +86,7 @@ Per-source options, all keyword arguments on `upload` / `load_from`:
 | `is_live=True` | Treat an uploaded stream as real time |
 | motion detection (`motionDetect`, `motionSensitivity`, ...) | Pause inference while the scene is still |
 
-Set scene options once for every source with `Pop(defaults=SourceDefaults(fps="1/1", roi=..., motionDetect=True))`.
-
-Which call for which job:
-
-| Need | Call |
-|---|---|
-| Images one at a time | `endpoint.upload(path)` per image, on one connected endpoint |
-| A folder of images with results kept on disk | `assets/batch_folder.py` |
-| Recorded video sampled for a VLM ability | `endpoint.upload(video, fps="1/1")`, results to a JSONL sidecar: `assets/video_jsonl.py` |
-| Track objects across a video | `endpoint.upload(video)` with a tracking component and no `fps` throttle, so every frame reaches the tracker |
-| A live camera | `endpoint.load_from("rtsp://...")`, with `fps` and motion gating on the Pop defaults |
-| Classify each detection with your own labels | Detect, then `CropForward` into a custom `image-classify` ability: `assets/crop_classify.py` |
-| A model trained in the dashboard | `InferenceComponent(abilityUuid="<uuid>")` |
+Set scene options once for every source with `Pop(defaults=SourceDefaults(fps="1/1", roi=..., motionDetect=True))`. Long video jobs: write each prediction as one JSON line to a sidecar file and skip inference when the file exists; delete it when the Pop, the `fps`, or the source changes.
 
 ## Composable Pops
 
@@ -137,9 +137,9 @@ One prediction per image, or per frame (`seconds`) for video. Boxes are top-left
 
 Read the field the ability produces; the wrong field is an empty list, never an error. For a trained model referenced by UUID, print one sample prediction before writing parsing code.
 
-Long jobs: write each prediction as one JSON line to a sidecar `.jsonl` and skip inference when the file exists. Delete it when the Pop, the `fps`, or the source changes.
-
 ## Data endpoint: datasets, ground truth, VLM abilities
+
+The CLI creates datasets and uploads or imports media (`eyepop create dataset --media-path`, `eyepop create asset --media-path <file-dir-or-url>`), lists assets, and runs evaluations. Code is for what the CLI does not do: ground truth on many assets, and registering an ability that the application owns.
 
 ```python
 from eyepop import EyePopSdk

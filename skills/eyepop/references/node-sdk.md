@@ -1,5 +1,7 @@
 # Node SDK
 
+For building a Node, browser, or React Native application. Everyday inference stays on the CLI (`eyepop run ... --json`); a service, a UI, or a live camera is what brings you here.
+
 `npm install --save @eyepop.ai/eyepop` for Node and TypeScript. Docs: https://docs.eyepop.ai/developer-documentation/sdks/node (Configuration, Running Inference, Composable Pops, Visualization). Package source and the full component reference: https://github.com/eyepop-ai/eyepop-sdk-node.
 
 | Runtime | Install |

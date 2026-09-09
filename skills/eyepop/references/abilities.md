@@ -38,19 +38,11 @@ There is no `patch ability` and a published ability is immutable. Create the nex
 
 ## Give it an alias for the SDK
 
-A Pop needs `ability="<alias>:latest"`. Mint the alias in the dashboard, or from Python with the data endpoint:
+Only a Pop in an SDK application or a deployment needs this; the CLI runs the ability by name. A Pop needs `ability="<alias>:latest"`. Mint the alias in the dashboard for an ability the CLI created. When a Python application owns the ability, register it from code instead, which publishes with the alias and tags `latest` in one run: `assets/register_ability.py`, explained in [python-sdk.md](python-sdk.md#data-endpoint-datasets-ground-truth-and-vlm-abilities).
 
-```python
-with EyePopSdk.dataEndpoint(api_key=API_KEY, account_id=ACCOUNT_UUID) as data:
-    data.publish_vlm_ability(ability_uuid, alias_name=ALIAS)
-    data.add_vlm_ability_alias(ability_uuid, alias_name=ALIAS, tag_name="latest")
-```
-
-- `ALIAS` must start with the account's **namespace prefix**. The rejection never names the prefix; read it off an existing alias in `eyepop get abilities --mine`, or from any alias the dashboard shows for the account.
+- The alias must start with the account's **namespace prefix**. The rejection never names the prefix; read it off an existing alias in `eyepop get abilities --mine`, or from any alias the dashboard shows for the account.
 - The `<task>` segment sets the result shape a Pop reader expects: `image-classify` in `classes`, `describe` in `texts`.
-- A new alias can take a minute to resolve on a worker; retry when the error mentions model uuids not found or an unresolved alias.
-
-The full register-in-code path (group, ability, publish, tag) is in [python-sdk.md](python-sdk.md#data-endpoint-datasets-ground-truth-and-vlm-abilities).
+- A new alias can take a little while to resolve on a worker; retry when the error mentions model uuids not found or an unresolved alias.
 
 ## Evaluate against ground truth
 

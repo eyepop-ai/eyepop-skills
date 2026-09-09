@@ -24,6 +24,8 @@ EyePop.ai turns images, video, and live streams into structured JSON. One vocabu
 | **instance** | The EyePop runtime installed on hardware you control | `eyepop get instances` |
 | **dataset** | Named media with ground truth, scored by `eyepop evaluate` | `eyepop get datasets` |
 
+Everyday inference is a CLI command: one line, no code, JSON out. Reach for an SDK only when the user is building an application in Python or Node, or needs something the CLI cannot do (a live camera, tracking across frames, a custom multi-stage Pop without a deployment, frame-rate throttling, bulk ground truth).
+
 Paths below are relative to this skill's directory. Flags come from the binary: `eyepop <command> --help` is authoritative, and the CLI is in beta, so pin a version in anything automated. Docs at https://docs.eyepop.ai, indexed for agents at https://docs.eyepop.ai/llms.txt.
 
 ## 1. Check the machine, offer the install
@@ -108,13 +110,13 @@ eyepop delete deployment "$UUID" --yes
 | Task | Read |
 |---|---|
 | Create, test, iterate, and alias an ability; build a dataset, add ground truth, evaluate, read metrics | [references/abilities.md](references/abilities.md) |
-| Write Python: sessions, media forms, `fps` and other source options, composable Pops, reading results, the data endpoint, local mode; runnable templates in `assets/*.py` | [references/python-sdk.md](references/python-sdk.md) |
-| Write Node or TypeScript, browser, or React Native: the same, plus canvas rendering | [references/node-sdk.md](references/node-sdk.md) |
+| Build a Python application: sessions, media forms, `fps` and other source options, composable Pops, reading results, the data endpoint, local mode; runnable templates in `assets/*.py` | [references/python-sdk.md](references/python-sdk.md) |
+| Build a Node, TypeScript, browser, or React Native application: the same, plus canvas rendering | [references/node-sdk.md](references/node-sdk.md) |
 | Stand up or operate an on-premise instance; how runs route on that machine | [references/on-premise.md](references/on-premise.md) |
 | Pick a pretrained model; label sets | [references/models.md](references/models.md) |
 | Command map, scripting flags, environment variables, `run` and `evaluate` details, ability flags | [references/cli.md](references/cli.md) |
 
-Choosing an SDK: Python for scripts, batch jobs, and data work (`pip install eyepop`, `EyePopSdk.sync_worker(pop=pop)`); Node for services, browsers, and React Native (`npm install @eyepop.ai/eyepop`, `EyePop.workerEndpoint({ pop }).connect()`). Both take the Pop when the session opens and read `EYEPOP_API_KEY` from the environment.
+When the user is building an application: Python for scripts, batch jobs, and data work (`pip install eyepop`, `EyePopSdk.sync_worker(pop=pop)`); Node for services, browsers, and React Native (`npm install @eyepop.ai/eyepop`, `EyePop.workerEndpoint({ pop }).connect()`). Both take the Pop when the session opens and read `EYEPOP_API_KEY` from the environment. For a one-off question about some media, the answer is still `eyepop run`.
 
 ## When something fails
 

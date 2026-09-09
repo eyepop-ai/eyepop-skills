@@ -25,6 +25,8 @@ Without `npx`, copy `skills/eyepop` into your agent's skills directory, for exam
 
 ## What the agent can do with it
 
+The CLI is the default: everyday inference is one `eyepop run` command with JSON out. The SDK references come in when you are building a Python or Node application.
+
 - Check the machine with `scripts/doctor.sh` and offer the CLI install command for your OS
 - Sign in with an API key or the browser flow, and verify the platform answers
 - List your models, abilities, Pops, deployments, instances, and datasets with `scripts/inventory.sh`, then prove a run works
@@ -49,7 +51,7 @@ skills/eyepop/
   references/on-premise.md instances and how runs route on that machine
   references/models.md     pretrained model catalog with label sets
   assets/pop.*.json        Pop documents for eyepop create deployment --pop
-  assets/*.py              runnable Python templates: batch a folder, sample a video, crop-then-classify, register an ability
+  assets/*.py              runnable Python templates for what the CLI cannot do: crop-then-classify from code, register an ability
   assets/env.example       the credentials those templates read
 evals/                     claude plugin eval cases and graders
 ```
