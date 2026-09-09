@@ -1,6 +1,6 @@
 ---
 name: eyepop
-description: Run EyePop.ai computer vision from the terminal or code. Checks for the eyepop CLI and installs it for the user's OS, signs in, lists the user's models, abilities, Pops, deployments, and instances and confirms they can run, runs inference on images, video, URLs, or directories and reads the JSON result, creates and tests a VLM ability, builds a dataset and evaluates an ability against ground truth, keeps a deployment warm, operates an on-premise instance, and writes Python or Node SDK code. Use when a task mentions EyePop, eyepop run, an eyepop.*:latest alias, EYEPOP_API_KEY, a Pop or ability, or detecting objects, people, text, or vehicles in images or video.
+description: Run EyePop.ai computer vision from the terminal or code. Checks for the eyepop CLI and installs it for the user's OS, signs in, lists the user's models, abilities, Pops, deployments, and instances and confirms they can run, runs inference on images, video, URLs, or directories and reads the JSON result, creates and tests a VLM ability, builds a dataset and evaluates an ability against ground truth, keeps a deployment warm, operates an on-premise instance, and writes Python or Node SDK code. Use when a task mentions EyePop, eyepop run, an eyepop.*:latest alias, EYEPOP_API_KEY, a Pop or ability, or detecting objects, people, text, or vehicles in images or video, or asks to install the eyepop CLI and walk through a first inference or quickstart.
 license: MIT
 compatibility: Needs network access to eyepop.ai. Installs the eyepop CLI with Homebrew or the curl install script when it is missing. The SDK paths need Python 3.12+ or Node.
 allowed-tools: Bash(eyepop --version) Bash(eyepop get:*) Bash(eyepop auth status:*) Bash(eyepop system:*) Bash(eyepop models:*) Bash(eyepop abilities:*) Bash(eyepop pops:*) Bash(eyepop datasets:*) Read
@@ -25,6 +25,8 @@ EyePop.ai turns images, video, and live streams into structured JSON. One vocabu
 | **dataset** | Named media with ground truth, scored by `eyepop evaluate` | `eyepop get datasets` |
 
 Everyday inference is a CLI command: one line, no code, JSON out. Reach for an SDK only when the user is building an application in Python or Node, or needs something the CLI cannot do (a live camera, tracking across frames, a custom multi-stage Pop without a deployment, frame-rate throttling, bulk ground truth).
+
+A first-time user who asks to install the CLI and walk through a first inference gets the guided path in [references/quickstart.md](references/quickstart.md): steps 1 and 2 below with an explanation at every stop.
 
 Paths below are relative to this skill's directory. Flags come from the binary: `eyepop <command> --help` is authoritative, and the CLI is in beta, so pin a version in anything automated. Docs at https://docs.eyepop.ai, indexed for agents at https://docs.eyepop.ai/llms.txt.
 
@@ -112,6 +114,7 @@ eyepop delete deployment "$UUID" --yes
 
 | Task | Read |
 |---|---|
+| Walk a new user through install, sign-in, and a first inference, explaining each step | [references/quickstart.md](references/quickstart.md) |
 | Create, test, iterate, and alias an ability; build a dataset, add ground truth, evaluate, read metrics | [references/abilities.md](references/abilities.md) |
 | Build a Python application: sessions, media forms, `fps` and other source options, composable Pops, reading results, the data endpoint, local mode; runnable templates in `assets/*.py` | [references/python-sdk.md](references/python-sdk.md) |
 | Build a Node, TypeScript, browser, or React Native application: the same, plus canvas rendering | [references/node-sdk.md](references/node-sdk.md) |

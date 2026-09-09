@@ -44,6 +44,7 @@ skills/eyepop/
   SKILL.md                 the workflow: check, install, sign in, inventory, run, read results
   scripts/doctor.sh        CLI present, credential present, platform reachable; exit code says what is missing
   scripts/inventory.sh     everything the account can run, one section per eyepop get command
+  references/quickstart.md guided install, sign-in, and first inference for a new user
   references/cli.md        command map, scripting flags, environment variables, run and evaluate details
   references/abilities.md  create, test, iterate, alias, and evaluate an ability
   references/python-sdk.md Python SDK
