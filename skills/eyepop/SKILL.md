@@ -1,6 +1,7 @@
 ---
 name: eyepop
-description: Run EyePop.ai computer vision from the terminal or code. Install and sign in to the eyepop CLI, pick a model, ability, or Pop, run inference on images, video, URLs, or directories, read the JSON result, keep a deployment warm, build a dataset and evaluate an ability, or stand up an on-premise instance; Python and Node SDK quickstarts. Use when a task mentions EyePop, eyepop run, an eyepop.*:latest alias, EYEPOP_API_KEY, a Pop or ability, or detecting objects, people, text, or vehicles in images or video.
+description: Run EyePop.ai computer vision from the terminal or code. Install the eyepop CLI for the user's OS, sign in, pick a model, ability, or Pop, run inference on images, video, URLs, or directories, read the JSON result, create and test a VLM ability, build a dataset and evaluate an ability against ground truth, keep a deployment warm, or stand up an on-premise instance; Python and Node SDK quickstarts. Use when a task mentions EyePop, eyepop run, an eyepop.*:latest alias, EYEPOP_API_KEY, a Pop or ability, or detecting objects, people, text, or vehicles in images or video.
+license: MIT
 metadata:
   author: eyepop-ai
 ---
@@ -19,27 +20,25 @@ EyePop.ai turns images, video, and live streams into structured JSON. One vocabu
 | **instance** | The EyePop runtime installed on hardware you control | `eyepop get instances` |
 | **dataset** | Named media with ground truth, scored by `eyepop evaluate` | `eyepop get datasets` |
 
-Flags come from the binary: `eyepop <command> --help` is authoritative. The CLI is in beta, so pin a version in anything automated. Full docs at https://docs.eyepop.ai, indexed for agents at https://docs.eyepop.ai/llms.txt.
+Flags come from the binary: `eyepop <command> --help` is authoritative. The CLI is in beta, so pin a version in anything automated. Full docs at https://docs.eyepop.ai, indexed for agents at https://docs.eyepop.ai/llms.txt; the command map, scripting flags, and environment variables are in [references/cli.md](references/cli.md).
 
-## Run inference from the terminal
+## From zero to a prediction
 
-### 1. Install
-
-macOS or Linux with Homebrew:
+### 1. Check for the CLI, offer to install it
 
 ```bash
-brew tap eyepop-ai/eyepop
-brew trust eyepop-ai/eyepop
-brew install eyepop
+eyepop --version
 ```
 
-Linux or macOS without Homebrew (installs to `~/.local/bin`; set `EYEPOP_VERSION` to pin a release):
+A version means the CLI is present; go to step 2. Otherwise read the platform (`uname -sm`; on Windows, PowerShell `$env:PROCESSOR_ARCHITECTURE`), tell the user which command below fits, and run it once they agree, since installing changes their machine.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/eyepop-ai/homebrew-eyepop/main/install.sh | sh
-```
+| Platform | Install |
+|---|---|
+| macOS, or Linux with Homebrew | `brew tap eyepop-ai/eyepop && brew trust eyepop-ai/eyepop && brew install eyepop` |
+| Linux x86_64 or arm64, or macOS without Homebrew | `curl -fsSL https://raw.githubusercontent.com/eyepop-ai/homebrew-eyepop/main/install.sh \| sh` |
+| Windows x86_64 | Download `eyepop-v<version>-x86_64-pc-windows-msvc.zip` from https://github.com/eyepop-ai/homebrew-eyepop/releases/latest, unzip, put `eyepop.exe` on `PATH` |
 
-Windows: download `eyepop-v<version>-x86_64-pc-windows-msvc.zip` from https://github.com/eyepop-ai/homebrew-eyepop/releases/latest and put `eyepop.exe` on `PATH`.
+`brew trust` lets Homebrew load formulae from the EyePop tap. The script installs to `~/.local/bin` (`EYEPOP_INSTALL_DIR` moves it, `EYEPOP_VERSION` pins a release) and says so when that directory is missing from `PATH`. A pinned or by-hand install is in [references/cli.md](references/cli.md#install-by-hand-or-pin-a-version).
 
 Done when `eyepop --version` prints a version. Later, `eyepop update` upgrades a Homebrew install in place and prints the download link for any other install.
 
@@ -63,7 +62,7 @@ eyepop get abilities -q ocr    # published abilities, searchable with -q
 eyepop get pops                # built-in and saved Pops
 ```
 
-Copy the alias straight out of the table. `eyepop.person:latest` detects people; the catalog with label sets is in [references/models.md](references/models.md). A prompt-driven task (describe, count, read a field, classify by description) is an **ability**; an object-detection task is a **model**.
+Copy the alias straight out of the table. `eyepop.person:latest` detects people; the catalog with label sets is in [references/models.md](references/models.md). A prompt-driven task (describe, count, read a field, classify by description) is an **ability**; an object-detection task is a **model**. When no existing ability fits, create one (below).
 
 ### 4. Run
 
@@ -103,6 +102,60 @@ Depending on the abilities in the Pop, a prediction also carries fields such as 
 - Deletes are permanent and prompt; `--yes` skips the prompt.
 - API keys are created and revoked in the dashboard only.
 
+## Create an ability
+
+An ability is a prompt with a pinned label set, run by a shared vision-language model. Build one when the catalog has no model for the task.
+
+1. **Write the prompt.** Name the task and constrain the output. `Determine whether the person is wearing a safety helmet. Return exactly one label from: ["helmet", "no_helmet"].` beats `Analyze the image`, which yields inconsistent labels, verbose text, and higher cost.
+2. **Create it, published, with the classes pinned.**
+
+   ```bash
+   eyepop create ability --name helmet-check \
+     --description "Flags people without a safety helmet on a construction site" \
+     --prompt 'Determine whether the person is wearing a safety helmet. Return exactly one label from: ["helmet", "no_helmet"].' \
+     --class helmet --class no_helmet \
+     --image-size 512 --publish
+   ```
+
+   `--image-size` is the biggest cost and speed lever (512-640 for detection and video events, 768-1024 for documents); `--fps` samples video (1-3 industrial, 2-5 events, 5-10 sports). Every flag: `eyepop create ability --help`, meanings in [references/cli.md](references/cli.md#ability-flags).
+3. **Find its alias.** `eyepop get abilities --mine -q helmet-check`; the alias column is what `--model` takes.
+4. **Test on real media.** `eyepop run --model <alias> sample.jpg --json`. After a prompt change, add `--no-cache` so a cached answer does not mask it.
+5. **Iterate.** The CLI has no `patch ability`: edit the prompt in the dashboard, or create a replacement and `eyepop delete ability <old>`.
+6. **Score it** against a dataset with ground truth, below, before relying on it.
+
+Done when the ability returns the pinned labels on representative media.
+
+## Evaluate an ability
+
+An evaluation runs an ability over the accepted media in a dataset and compares each result with the asset's ground truth.
+
+1. **Build the dataset.** One command creates it and uploads media; `--partition` is assigned at upload, so name the split you will score.
+
+   ```bash
+   eyepop create dataset --name helmets --media-path ./images --recursive --partition test
+   eyepop get assets --dataset helmets
+   ```
+
+   `eyepop create asset --dataset helmets --media-path ./more --partition test` adds media later.
+2. **Add ground truth.** Uploading creates assets with no labels. Annotate in the dashboard, or from Python with the data endpoint's `update_asset_ground_truth` ([references/sdk.md](references/sdk.md#datasets-ground-truth-and-registering-vlm-abilities-from-python)).
+3. **Evaluate.**
+
+   ```bash
+   eyepop evaluate --ability <alias> --dataset helmets --partition test
+   eyepop evaluate --ability <alias> --dataset helmets --filter-class helmet --no-wait
+   ```
+
+   The CLI polls for at least 20 seconds (`--timeout` raises it) and prints the metrics when the run finishes in that window; otherwise it prints a request ID.
+4. **Read the metrics.**
+
+   ```bash
+   eyepop get evals <request_id> --watch
+   eyepop get evals --ability <alias>        # every evaluation of this ability
+   eyepop get evals --dataset helmets        # every evaluation against this dataset
+   ```
+
+A dataset is addressed by name, UUID, or version: `helmets@3`, `helmets@latest`. Done when the metrics for the intended partition are in hand.
+
 ## Keep a model warm
 
 A one-off `run` stands up compute per call. An application that runs many times wants a deployment:
@@ -116,30 +169,9 @@ eyepop delete deployment "$UUID" --yes
 
 `--pop` on `create deployment` and `patch deployment` takes a saved Pop UUID, a JSON or YAML file, or an inline body. `run --session` and `delete deployment` accept a display name or a UUID prefix of at least 7 characters; `get deployments` and `patch deployment` need the full UUID. SDK clients attach with the same session UUID, see [references/sdk.md](references/sdk.md).
 
-## Create an ability
-
-```bash
-eyepop create ability --name helmet-check \
-  --prompt 'Determine whether the person is wearing a safety helmet. Return exactly one label from: ["helmet", "no_helmet"].' \
-  --class helmet --class no_helmet --publish
-eyepop get abilities -q helmet-check      # copy the alias, then run --model <alias>
-```
-
-A good prompt names the task and constrains the output; `--class` pins the label set. `--image-size` (512-640 for detection and video events, 768-1024 for documents) and `--fps` for video are the cost levers. Field meanings: https://docs.eyepop.ai/developer-documentation/platform/abilities
-
-## Datasets and evaluation
-
-```bash
-eyepop create dataset --name people
-eyepop create asset --dataset people --media-path ./images --recursive --partition test
-eyepop evaluate --ability my-namespace.find-kittens:latest --dataset people --partition test
-eyepop get evals <request_id> --watch
-```
-
-Evaluation is asynchronous: the CLI polls for at least 20 seconds (`--timeout` raises it) and otherwise prints a request ID. Uploading media creates assets with no ground truth, so annotate them (dashboard, or the Python data endpoint) before scoring. A dataset is addressed by name, UUID, or version: `people@3`, `people@latest`.
-
 ## Branches with their own reference
 
+- **Command map, scripting flags, environment variables** — [references/cli.md](references/cli.md)
 - **On-premise** — a machine with an instance routes `--pop`, published-model `--model`, and target-less runs to local hardware, and `create deployment` is disabled there: [references/on-premise.md](references/on-premise.md)
 - **Python or Node SDK** — transient sessions, persistent deployments, local mode, composable Pops: [references/sdk.md](references/sdk.md)
 - **Which model** — the pretrained catalog with label sets: [references/models.md](references/models.md)
@@ -148,9 +180,11 @@ Evaluation is asynchronous: the CLI polls for at least 20 seconds (`--timeout` r
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| `eyepop: command not found` | CLI missing, or `~/.local/bin` absent from `PATH` | Step 1; `export PATH="$HOME/.local/bin:$PATH"` |
 | Unknown subcommand or flag | Stale binary; the CLI is beta and moves | `eyepop update`, then `eyepop <command> --help` |
 | `get accounts` refuses, `auth status` says not logged in | Running under `EYEPOP_API_KEY` alone | Expected; pass `--account <uuid>` to create elsewhere |
 | A run bills cloud compute on an on-premise machine | `--model` named a VLM-only ability, which is not on-premise aware | Use `--pop` |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
+| Evaluation prints a request ID instead of metrics | Run outlived the 20 second poll | `eyepop get evals <request_id> --watch` |
 | Nothing runs, and the dashboard shows no plan | Account has no active plan | Choose a plan in the dashboard; https://docs.eyepop.ai/developer-documentation/pricing |
 | Anything else | | `eyepop <command> --help`, https://docs.eyepop.ai/llms.txt, help@eyepop.ai |
