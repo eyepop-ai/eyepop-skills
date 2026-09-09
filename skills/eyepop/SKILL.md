@@ -127,7 +127,7 @@ Choosing an SDK: Python for scripts, batch jobs, and data work (`pip install eye
 | `403` creating a deployment | Free plan; deployments need a paid plan | Choose a plan at https://dashboard.eyepop.ai |
 | A Pop cannot reference an ability created with `--publish` | CLI publish mints no alias | Alias it: [references/abilities.md](references/abilities.md#give-it-an-alias-for-the-sdk) |
 | An alias is rejected on publish | It lacks the account's namespace prefix | Copy the prefix from an existing alias in `get abilities --mine` |
-| Evaluation reports all-zero metrics and no error | Every asset hit the per-asset timeout | Shorter media, lower `--fps`, or images: [references/abilities.md](references/abilities.md#evaluate-against-ground-truth) |
+| Evaluation reports all-zero metrics and no error | Every asset hit the per-asset timeout | Shorter video assets, images, or an ability created with a lower `--fps`: [references/abilities.md](references/abilities.md#evaluate-against-ground-truth) |
 | A run bills cloud compute on an on-premise machine | `--model` named an ability, which is not on-premise aware | Use `--pop` |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
 | SDK connect error with `SESS_007` or `pipeline_error` | The Pop is invalid: unknown alias or bad component | Fix the Pop; `no available server` is the capacity error, retry that one |

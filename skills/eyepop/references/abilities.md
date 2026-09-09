@@ -76,5 +76,5 @@ eyepop get evals --dataset helmets --filter status=completed
 
 - `--ability` and `--dataset` take a name or UUID; `--partition` and `--filter-class` repeat.
 - The CLI polls for at least 20 seconds and prints the metrics when the run finishes in that window; otherwise it prints a request ID. `--timeout` above 20 waits longer; `--no-wait` returns at once.
-- **All-zero metrics with no error** means every asset hit the server's per-asset timeout (1800 s for a whole asset, so long videos on a slow class), not that the ability found nothing. Creating a new ability changes nothing; shorten or split the videos, lower `--fps`, or evaluate images.
+- **All-zero metrics with no error** means every asset hit the server's per-asset timeout (1800 s for a whole asset, so long videos on a slow class), not that the ability found nothing. Creating a new ability with the same prompt changes nothing. Split the videos into shorter assets, evaluate images, or create the ability with a lower `--fps` so fewer frames are sampled; `eyepop evaluate` itself has no frame-rate flag.
 - `--video-chunk-length` (nanoseconds) and `--video-chunk-overlap` (0.0-1.0) shape how video assets are scored.
