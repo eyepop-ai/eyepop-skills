@@ -24,7 +24,12 @@ if ! command -v eyepop >/dev/null 2>&1; then
   fi
   exit 2
 fi
-echo "cli: $(eyepop --version 2>&1 | head -1)"
+version=$(eyepop --version 2>&1 | head -1)
+if printf '%s\n' "${version#eyepop }" | awk -F. '{ exit !($1 > 0 || ($1 == 0 && $2 >= 18)) }'; then
+  echo "cli: $version"
+else
+  echo "cli: $version (older than 0.18.0; run: eyepop update)"
+fi
 
 if [ -n "${EYEPOP_API_KEY:-}" ]; then
   echo "auth: EYEPOP_API_KEY is set"

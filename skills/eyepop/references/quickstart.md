@@ -46,11 +46,11 @@ Ask for an image or a short video on this machine, or an HTTP(S) URL. Something 
 ## 5. Run the first inference
 
 ```bash
-eyepop run --model eyepop.person:latest <media>                 # their file or URL
-eyepop run --model eyepop.person:latest assets/macgyver.jpg     # the sample
+eyepop run --model eyepop.person:latest --media-path <media>                 # their file or URL
+eyepop run --model eyepop.person:latest --media-path assets/macgyver.jpg     # the sample
 ```
 
-Say what the parts mean: `run` sends media to EyePop, `--model` names what to run, `eyepop.person:latest` is the pretrained person detector every account can use, and everything after the flags is media. Then run it with `--json` and walk through the result:
+Say what the parts mean: `run` sends media to EyePop, `--model` names what to run, `eyepop.person:latest` is the pretrained person detector every account can use, and `--media-path` names the media, repeated for more than one file. Then run it with `--json` and walk through the result:
 
 ```json
 { "source_width": 1920, "source_height": 1080,
@@ -69,10 +69,10 @@ With the sample, expect `source_width` 505, `source_height` 640, and one `person
 One or two of these, matched to what they said they want to do:
 
 - Another detector: `eyepop get models` lists them. `eyepop.common-objects:latest`, `eyepop.vehicle:latest`, and `eyepop.text:latest` are good second runs; [models.md](models.md) has the label sets.
-- A whole folder: `eyepop run --model eyepop.person:latest ./photos --recursive --json > results.json`.
-- A multi-stage pipeline: `eyepop run --pop people-common-objects <media>`; `eyepop get pops` lists the rest.
+- A whole folder: `eyepop run --model eyepop.person:latest --media-path ./photos --recursive --json > results.json`.
+- A multi-stage pipeline: `eyepop run --pop people-common-objects --media-path <media>`; `eyepop get pops` lists the rest.
 - A question in words (describe, count, read a field): an ability, in [abilities.md](abilities.md).
 - `eyepop tui` is the same run as a guided form.
 - Building an application: [python-sdk.md](python-sdk.md) or [node-sdk.md](node-sdk.md).
 
-Leave them with the one-line summary: install once, `eyepop auth login` once, then `eyepop run --model <alias> <media>` for anything.
+Leave them with the one-line summary: install once, `eyepop auth login` once, then `eyepop run --model <alias> --media-path <media>` for anything.

@@ -1,8 +1,8 @@
 ---
 type: regex
-pattern: 'eyepop run --model eyepop\.person:latest[^\n]*\./photos[^\n]*(--recursive|-r)[^\n]*(--json|--format json)|eyepop run[^\n]*(--recursive|-r)[^\n]*(--json|--format json)[^\n]*eyepop\.person:latest'
+pattern: '(?=[\s\S]*eyepop run --model eyepop\.person:latest)(?=[\s\S]*--media-path \./photos)(?=[\s\S]*(--recursive|-r\s))(?=[\s\S]*(--json|--format json))'
 match: contains
 target: last_message
 ---
 
-The command names the person model as the --model target, passes the directory as media, recurses, and asks for JSON.
+The command names the person model as the --model target, passes the directory with --media-path, recurses, and asks for JSON.

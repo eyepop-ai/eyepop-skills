@@ -23,13 +23,13 @@ The `<task>` segment of the alias says what the ability returns: `classify` answ
 ## Test
 
 ```bash
-eyepop run --model <your-namespace>.classify.helmet:latest sample.jpg --json
+eyepop run --model <your-namespace>.classify.helmet:latest --media-path sample.jpg --json
 ```
 
 The alias runs the ability as a pipeline with its own prompt, so `--prompt` is refused there. A prompted, one-off run names the ability by its bare name or UUID instead, which is the cheap way to try wordings before creating the next version:
 
 ```bash
-eyepop run --model helmet sample.jpg --prompt 'Try a different wording' --no-cache
+eyepop run --model helmet --media-path sample.jpg --prompt 'Try a different wording' --no-cache
 ```
 
 `--no-cache` forces fresh inference on that prompted run; without it a repeated image can answer from cache. Print one result and read the field the ability fills.

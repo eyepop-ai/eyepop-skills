@@ -15,7 +15,7 @@ Docs: https://docs.eyepop.ai/developer-documentation/cli/on-premise (CLI) and ht
 eyepop instance init --pop eyepop.person:latest
 ```
 
-One command detects the hardware profile, checks prerequisites, installs a registry credential when docker holds none, registers the instance with your account, pulls the runtime image (several gigabytes, silent unless `EYEPOP_LOG_LEVEL=debug`), and starts the container. Done when it reports healthy; `eyepop run image.jpg` then runs on the instance.
+One command detects the hardware profile, checks prerequisites, installs a registry credential when docker holds none, registers the instance with your account, pulls the runtime image (several gigabytes, silent unless `EYEPOP_LOG_LEVEL=debug`), and starts the container. Done when it reports healthy; `eyepop run --media-path image.jpg` then runs on the instance.
 
 Everything lives in the **instance root**, `~/.eyepop` by default (`--config-dir` renames it; `EYEPOP_INSTANCE_DIR` points every command, `run` included, at one). It holds `docker-compose.yml`, `eyepop-instance.yml` (your API key in plaintext, mode `0600`), `pop.json`, and `license.pem` when issued.
 
@@ -39,11 +39,11 @@ QNN: install the QAIRT SDK first, in `/opt/qcom/aistack/qairt`, `/opt/qairt`, `/
 
 | Run | Goes to |
 |---|---|
-| `eyepop run --pop <pop> media` | The instance, before any catalog lookup. Prefer this form |
-| `eyepop run media` (no target) | The instance, serving its configured Pop |
-| `eyepop run --model <published model> media` | The instance, after resolving the alias against the platform (so it needs network); bills no compute |
-| `eyepop run --model <VLM-only ability> media` | Cloud inference, and it bills. Use `--pop` instead |
-| `eyepop run --session <uuid> media` | That cloud session |
+| `eyepop run --pop <pop> --media-path <media>` | The instance, before any catalog lookup. Prefer this form |
+| `eyepop run --media-path <media>` (no target) | The instance, serving its configured Pop |
+| `eyepop run --model <published model> --media-path <media>` | The instance, after resolving the alias against the platform (so it needs network); bills no compute |
+| `eyepop run --model <VLM-only ability> --media-path <media>` | Cloud inference, and it bills. Use `--pop` instead |
+| `eyepop run --session <uuid> --media-path <media>` | That cloud session |
 
 A target naming a single ability is refused when it mismatches the single ability the instance serves; a Pop-name target, or an instance serving a composed Pop, is served as configured. On-premise runs create no session, so `eyepop get sessions` shows nothing new. Commands that would start EyePop compute, `create deployment` among them, answer that they are disabled on-premise; reads work as always.
 

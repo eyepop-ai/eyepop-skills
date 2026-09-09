@@ -11,7 +11,7 @@
 | `create` (`new`) | `dataset`, `asset`, `ability`, `deployment` | |
 | `patch` | `deployment` | The only patchable resource |
 | `delete` | `ability`, `dataset`, `deployment`, `session` | Prompts; `--yes` skips. Instances go through `instance delete` |
-| `run` | | Media, one target flag |
+| `run` | | One target flag, media in `--media-path` |
 | `evaluate` (`eval`) | | `--ability` and `--dataset` |
 | `instance` | `init`, `start`, `stop`, `restart`, `set pop`, `logs`, `delete` | On-premise, see [on-premise.md](on-premise.md) |
 | `system` | | Hardware profile of this machine |
@@ -38,8 +38,8 @@
 
 ## `run` details
 
-- Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` takes an alias, from `get models` or the ALIAS column of `get abilities`, and runs it as a single-component pipeline; an ability's bare name or UUID is the prompted VLM run, the only form `--prompt` applies to. `--pop` takes what `get pops` lists: a built-in handle (`person`, `people-common-objects`, `vehicles-traffic-cam`, and so on) or a saved Pop's alias, `<your-namespace>.<name>:latest`, from its POP column. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
-- Inputs: positionals and `--media-path`, each a file, directory, or HTTP(S) URL; `-r/--recursive` descends into directories. `-p/--prompt` sends a text prompt to a VLM ability.
+- Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` takes an alias, from `get models` or the ALIAS column of `get abilities`, and runs it as a single-component pipeline; an ability's bare name or UUID is the prompted VLM run, the only form `--prompt` applies to. `--pop` takes the same forms on every command that has it: a Pop from `get pops`, a built-in handle (`person`, `people-common-objects`, `vehicles-traffic-cam`, and so on) or a saved Pop's alias `<your-namespace>.<name>:latest` from its POP column; an ability alias such as `eyepop.person:latest`, composed into a one-stage Pop; or the Pop itself as a JSON or YAML file or inline body. Pops travel by value; the CLI never sends a Pop UUID. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
+- Inputs: `--media-path`, once per file, directory, or HTTP(S) URL; nothing on `run` is positional. `-r/--recursive` descends into directories. `-p/--prompt` sends a text prompt to a VLM ability.
 - `--concurrency` 1-32, default 4. `--timeout` is per result: the inference poll on model runs (default 3600 s), the worker response on Pop and session runs (default 120 s).
 - `--no-cache` applies to VLM ability runs, with or without `--prompt`; refused on `--pop`, `--session`, and published models.
 - Output: one file that succeeds prints `{file, response}` plus `request_id` when the run has one; a file still processing prints a pending record; two or more files, or one failure, prints `{results, total, success, failed, failures, pending}`.

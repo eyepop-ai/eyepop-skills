@@ -1,11 +1,11 @@
 # Python SDK
 
-For building a Python application. Everyday inference stays on the CLI: `eyepop run --model <alias> ./photos --recursive --json > results.json` is the whole job for a folder, a video, or a URL, and `eyepop create ability`, `eyepop create dataset --media-path`, and `eyepop evaluate` cover abilities and datasets.
+For building a Python application. Everyday inference stays on the CLI: `eyepop run --model <alias> --media-path ./photos --recursive --json > results.json` is the whole job for a folder, a video, or a URL, and `eyepop create ability`, `eyepop create dataset --media-path`, and `eyepop evaluate` cover abilities and datasets.
 
 | Need | CLI | Code |
 |---|---|---|
 | Images, a folder, a video, or an HTTP(S) URL through a model or ability | `eyepop run ... --json` | |
-| A saved multi-stage Pop | `eyepop create deployment --pop pop.json`, then `eyepop run --session` | `Pop(...)` in a transient session when no deployment is wanted: `assets/crop_classify.py` |
+| A multi-stage Pop written as JSON | `eyepop run --pop pop.json --media-path <media>`; `eyepop create deployment --pop pop.json` to keep it warm | `Pop(...)` in a transient session when no deployment is wanted: `assets/crop_classify.py` |
 | A live RTSP or RTMP camera | | `endpoint.load_from("rtsp://...")` |
 | Track objects across frames | | a tracking component, whole video or stream to one endpoint |
 | Throttle a pretrained model on video | | `upload(video, fps="1/1")` |
