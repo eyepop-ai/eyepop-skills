@@ -1,0 +1,29 @@
+{
+  "components": [
+    {
+      "type": "inference",
+      "ability": "eyepop.vehicle:latest",
+      "categoryName": "vehicles",
+      "confidenceThreshold": 0.8,
+      "forward": {
+        "operator": { "type": "crop" },
+        "targets": [
+          {
+            "type": "inference",
+            "ability": "eyepop.vehicle.license-plate:latest",
+            "forward": {
+              "operator": { "type": "crop" },
+              "targets": [
+                {
+                  "type": "inference",
+                  "ability": "eyepop.text.recognize.landscape:latest",
+                  "categoryName": "license-plate"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

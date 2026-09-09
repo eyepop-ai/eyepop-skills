@@ -73,4 +73,4 @@ Removes containers, volumes including the model cache, the network, the pulled i
 
 ## From the SDK
 
-Local mode points the SDK at `http://127.0.0.1:8080` with no credentials; pass the Pop the instance serves. See [sdk.md](sdk.md#local-mode-on-premise-instance).
+Local mode points the SDK at `http://127.0.0.1:8080` with no credentials; pass the Pop the instance serves. See [python-sdk.md](python-sdk.md#local-mode-on-premise-instance) and [node-sdk.md](node-sdk.md#local-mode-on-premise-instance).

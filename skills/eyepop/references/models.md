@@ -51,6 +51,6 @@ Structured OCR abilities that return typed fields (driver's license, invoice, an
 
 - People, vehicles, animals, common objects: a detection **model** above, the cheapest and fastest path.
 - Anything described in words (count helmets, read the total on a receipt, is the shelf empty): an **ability**, either one from the Hub or one you create with `eyepop create ability`.
-- Two stages (find plates, then read them; find people, then classify each): a **Pop** that forwards crops, see [sdk.md](sdk.md).
+- Two stages (find plates, then read them; find people, then classify each): a **Pop** that forwards crops, see [python-sdk.md](python-sdk.md#composable-pops) or [node-sdk.md](node-sdk.md#composable-pops).
 
 Docs page: https://docs.eyepop.ai/developer-documentation/platform/abilities/pretrained-models-and-abilities

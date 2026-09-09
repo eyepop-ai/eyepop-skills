@@ -1,0 +1,13 @@
+{
+  "name": "eyepop-skills",
+  "description": "Work with EyePop.ai from a coding agent: the eyepop CLI, inference on images and video, abilities, evaluations, deployments, on-premise instances, and the Python and Node SDKs.",
+  "version": "0.2.0",
+  "author": {
+    "name": "EyePop.ai",
+    "url": "https://www.eyepop.ai"
+  },
+  "homepage": "https://docs.eyepop.ai",
+  "repository": "https://github.com/eyepop-ai/eyepop-skills",
+  "license": "MIT",
+  "keywords": ["eyepop", "computer-vision", "cli", "inference", "sdk"]
+}

@@ -38,7 +38,7 @@
 
 ## `run` details
 
-- Targets: `--model <alias-or-uuid>` (models and published abilities), `--pop <alias-or-uuid>` (built-in handle or saved Pop UUID), `--session <uuid>`. Exactly one.
+- Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` resolves a pretrained model alias first and composes it into a single-component Pop; anything else is looked up as an ability by name or UUID and runs through VLM inference. `--pop` takes a built-in handle from `eyepop get pops`, which reads the built-in catalog; a UUID is refused with `No pop found with UUID`. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
 - Inputs: positionals and `--media-path`, each a file, directory, or HTTP(S) URL; `-r/--recursive` descends into directories. `-p/--prompt` sends a text prompt to a VLM ability.
 - `--concurrency` 1-32, default 4. `--timeout` is per result: the inference poll on model runs (default 3600 s), the worker response on Pop and session runs (default 120 s).
 - `--no-cache` applies to VLM ability runs, with or without `--prompt`; refused on `--pop`, `--session`, and published models. `--dashboard` opens the session dashboard for Pop runs and needs an admin account.
@@ -53,7 +53,7 @@
 | `--name`, `--description` | Identity. The description is also what the prompt-creation agent reads, so make it task-specific |
 | `--prompt` | The instruction to the vision-language model; name the task and restrict the outputs |
 | `--class <label>` (repeatable) | Fixed output label set the raw answer is mapped into |
-| `--publish` | Publish after creation; `run --model` takes published abilities |
+| `--publish` | Publish after creation. The published ability is immutable and has no alias: the CLI runs it by name or UUID, and a Pop needs an alias minted later ([abilities.md](abilities.md#give-it-an-alias-for-the-sdk)) |
 | `--public` | Make the ability public |
 | `--image-size` | Max dimension media is resized to before inference; the main cost and speed lever |
 | `--fps`, `--max-frames`, `--min-frames` | Video sampling |

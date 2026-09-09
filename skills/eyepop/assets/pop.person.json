@@ -1,0 +1,9 @@
+{
+  "components": [
+    {
+      "type": "inference",
+      "ability": "eyepop.person:latest",
+      "confidenceThreshold": 0.5
+    }
+  ]
+}
