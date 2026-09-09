@@ -101,7 +101,7 @@ eyepop patch deployment "$UUID" --pop ./pop-v2.json               # same UUID an
 eyepop delete deployment "$UUID" --yes
 ```
 
-`--pop` here takes a JSON or YAML file or an inline body; `--model <alias>` works for a single model. `run --session` and `delete deployment` accept a display name or a UUID prefix of at least 7 characters; `get deployments` and `patch deployment` need the full UUID. Deployments need a paid plan and are capped at 10 per user.
+`--pop` here takes a JSON or YAML file or an inline body; `--model <alias>` works for a single model. `run --session` and `delete deployment` accept a display name or a UUID prefix of at least 7 characters; `get deployments` and `patch deployment` need the full UUID. Deployments need a plan that includes them; a `403` on create means the current plan does not.
 
 ## Branches with their own reference
 
@@ -124,11 +124,11 @@ Choosing an SDK: Python for scripts, batch jobs, and data work (`pip install eye
 | Unknown subcommand or flag | Stale binary; the CLI is beta and moves | `eyepop update`, then `eyepop <command> --help` |
 | `Token expired` | Browser session lapsed | `eyepop auth login`, or set `EYEPOP_API_KEY` |
 | `get accounts` refuses, `auth status` says not logged in | Running under `EYEPOP_API_KEY` alone | Expected; `--account <uuid>` to create elsewhere |
-| `403` creating a deployment | Free plan; deployments need a paid plan | Choose a plan at https://dashboard.eyepop.ai |
+| `403` creating a deployment | The current plan does not include deployments | Choose a plan at https://dashboard.eyepop.ai |
 | A Pop cannot reference an ability created with `--publish` | CLI publish mints no alias | Alias it: [references/abilities.md](references/abilities.md#give-it-an-alias-for-the-sdk) |
 | An alias is rejected on publish | It lacks the account's namespace prefix | Copy the prefix from an existing alias in `get abilities --mine` |
 | Evaluation reports all-zero metrics and no error | Every asset hit the per-asset timeout | Shorter video assets, images, or an ability created with a lower `--fps`: [references/abilities.md](references/abilities.md#evaluate-against-ground-truth) |
 | A run bills cloud compute on an on-premise machine | `--model` named an ability, which is not on-premise aware | Use `--pop` |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
-| SDK connect error with `SESS_007` or `pipeline_error` | The Pop is invalid: unknown alias or bad component | Fix the Pop; `no available server` is the capacity error, retry that one |
+| SDK connect error that reports a pipeline error | The Pop is invalid: unknown alias or bad component | Fix the Pop; `no available server` is the capacity error, retry that one |
 | Anything else | | `eyepop <command> --help`, https://docs.eyepop.ai/llms.txt, help@eyepop.ai |

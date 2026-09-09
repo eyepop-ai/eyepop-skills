@@ -1,6 +1,6 @@
 # Evals
 
-Cases for `claude plugin eval` (early access). Each case is a `prompt.md` with frontmatter plus `graders/*.md`; expected answers come from the EyePop docs, the eyepop-wiki, and the eyepop-cli source, so a failing grader points at a stale claim in the skill or a regression in how the agent uses it.
+Cases for `claude plugin eval` (early access). Each case is a `prompt.md` with frontmatter plus `graders/*.md`; expected answers come from the EyePop docs and the CLI's own `--help`, so a failing grader points at a stale claim in the skill or a regression in how the agent uses it.
 
 ```bash
 claude plugin eval . --allow-tools Bash Read Skill --json evals/results/latest.json --report evals/results/report.html

@@ -33,7 +33,7 @@ with EyePopSdk.sync_worker(pop=pop) as endpoint:
 | `sync_worker()` with no `pop` | Reuses an existing non-persistent session when one exists |
 | `sync_worker(session_uuid="...")` or `EYEPOP_SESSION_UUID` | Attaches to a persistent **deployment**; the Pop was fixed when `eyepop create deployment` made it, so pass none |
 
-Deployments are capped at 10 per user and need a paid plan; a `403` on create means the account is on the free tier. Other variables: `EYEPOP_ACCOUNT_ID` (needed by some Data API calls), `EYEPOP_URL`, `EYEPOP_LOG_LEVEL`, `EYEPOP_LOCAL_MODE`.
+Deployments need a plan that includes them; a `403` on create means the current plan does not. Other variables: `EYEPOP_ACCOUNT_ID` (needed by some Data API calls), `EYEPOP_URL`, `EYEPOP_LOG_LEVEL`, `EYEPOP_LOCAL_MODE`.
 
 ## Submitting media
 
@@ -179,7 +179,7 @@ with EyePopSdk.dataEndpoint(api_key=API_KEY, account_id=ACCOUNT_UUID) as data:
     ability = data.add_vlm_ability_alias(ability.uuid, alias_name=NAME, tag_name="latest")
 ```
 
-- `NAMESPACE` is the account's namespace prefix, generated from the account email at signup (for `jane@acme.com`, `acme-com`; a collision appends the local part). An alias outside it is rejected without naming the prefix; read an existing alias from `eyepop get abilities --mine` to see yours.
+- `NAMESPACE` is the account's namespace prefix. An alias outside it is rejected without naming the prefix; read an existing alias from `eyepop get abilities --mine`, or from the dashboard, to see yours.
 - The `<task>` segment picks the result shape: `image-classify` answers in `classes`, `describe` in `texts`. Other task words have no defined shape.
 - `max_new_tokens` around 10 for a label, around 350 for a description. `image_size` 512 for most crops.
 - Registration is not idempotent: check `list_vlm_abilities()` first, and delete the old group before re-registering.
@@ -198,5 +198,5 @@ Talks to `http://127.0.0.1:8080` with no account credentials; `eyepop_url="http:
 
 ## Errors
 
-- A session error carrying `SESS_007` or a `pipeline_error` means the Pop is invalid (an unknown alias, a bad component). `no available server` means capacity or routing, a different problem; retry that one.
+- A connect error that reports a pipeline error means the Pop is invalid (an unknown alias, a bad component). `no available server` means capacity or routing, a different problem; retry that one.
 - `Compute API endpoint (https://compute.eyepop.ai) requires EYEPOP_API_KEY`: an `access_token` was given where the Compute API wants an API key. Deployments need `api_key`.

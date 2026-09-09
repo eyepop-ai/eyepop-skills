@@ -41,7 +41,7 @@
 - Targets: `--model`, `--pop`, `--session`. Exactly one. `--model` resolves a pretrained model alias first and composes it into a single-component Pop; anything else is looked up as an ability by name or UUID and runs through VLM inference. `--pop` takes a built-in handle from `eyepop get pops`, which reads the built-in catalog; a UUID is refused with `No pop found with UUID`. `--session` takes a deployment or session UUID, a display name, or a UUID prefix of at least 7 characters.
 - Inputs: positionals and `--media-path`, each a file, directory, or HTTP(S) URL; `-r/--recursive` descends into directories. `-p/--prompt` sends a text prompt to a VLM ability.
 - `--concurrency` 1-32, default 4. `--timeout` is per result: the inference poll on model runs (default 3600 s), the worker response on Pop and session runs (default 120 s).
-- `--no-cache` applies to VLM ability runs, with or without `--prompt`; refused on `--pop`, `--session`, and published models. `--dashboard` opens the session dashboard for Pop runs and needs an admin account.
+- `--no-cache` applies to VLM ability runs, with or without `--prompt`; refused on `--pop`, `--session`, and published models.
 - Output: one file that succeeds prints `{file, response}` plus `request_id` when the run has one; a file still processing prints a pending record; two or more files, or one failure, prints `{results, total, success, failed, failures, pending}`.
 
 ## Ability flags

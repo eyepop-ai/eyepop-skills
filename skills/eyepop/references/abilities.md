@@ -46,7 +46,7 @@ with EyePopSdk.dataEndpoint(api_key=API_KEY, account_id=ACCOUNT_UUID) as data:
     data.add_vlm_ability_alias(ability_uuid, alias_name=ALIAS, tag_name="latest")
 ```
 
-- `ALIAS` must start with the account's **namespace prefix**, generated from the account email at signup (`jane@acme.com` gives `acme-com`; a collision appends the local part). The rejection never names the prefix; read it off an existing alias in `eyepop get abilities --mine`, or from any alias the dashboard shows for the account.
+- `ALIAS` must start with the account's **namespace prefix**. The rejection never names the prefix; read it off an existing alias in `eyepop get abilities --mine`, or from any alias the dashboard shows for the account.
 - The `<task>` segment sets the result shape a Pop reader expects: `image-classify` in `classes`, `describe` in `texts`.
 - A new alias can take a minute to resolve on a worker; retry when the error mentions model uuids not found or an unresolved alias.
 
@@ -76,5 +76,5 @@ eyepop get evals --dataset helmets --filter status=completed
 
 - `--ability` and `--dataset` take a name or UUID; `--partition` and `--filter-class` repeat.
 - The CLI polls for at least 20 seconds and prints the metrics when the run finishes in that window; otherwise it prints a request ID. `--timeout` above 20 waits longer; `--no-wait` returns at once.
-- **All-zero metrics with no error** means every asset hit the server's per-asset timeout (1800 s for a whole asset, so long videos on a slow class), not that the ability found nothing. Creating a new ability with the same prompt changes nothing. Split the videos into shorter assets, evaluate images, or create the ability with a lower `--fps` so fewer frames are sampled; `eyepop evaluate` itself has no frame-rate flag.
+- **All-zero metrics with no error** means every asset hit the server's per-asset time limit, which a long video exhausts, not that the ability found nothing. Creating a new ability with the same prompt changes nothing. Split the videos into shorter assets, evaluate images, or create the ability with a lower `--fps` so fewer frames are sampled; `eyepop evaluate` itself has no frame-rate flag.
 - `--video-chunk-length` (nanoseconds) and `--video-chunk-overlap` (0.0-1.0) shape how video assets are scored.

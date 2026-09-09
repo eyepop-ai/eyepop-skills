@@ -41,7 +41,7 @@ try {
 | Neither | Reuses your first live non-persistent session, else creates one |
 | `sessionUuid` or `EYEPOP_SESSION_UUID`, no `pop` | Attaches to a persistent **deployment** created with `eyepop create deployment`; the Pop came with it |
 
-Browser and mobile clients never hold the key: create the session on a trusted backend, hand the client the session JSON, and connect with `session`. Deployments are capped at 10 per user and need a paid plan (`403` on create means the free tier).
+Browser and mobile clients never hold the key: create the session on a trusted backend, hand the client the session JSON, and connect with `session`. Deployments need a plan that includes them; a `403` on create means the current plan does not.
 
 ## Submitting media
 
@@ -148,4 +148,4 @@ Talks to `http://127.0.0.1:8080` and always that port; `EYEPOP_LOCAL_MODE=true` 
 
 ## Errors
 
-A thrown connect error that carries `SESS_007` or a `pipeline_error` means the Pop is invalid (unknown alias, bad component), while `no available server` is capacity or routing and worth a retry. Keep the two apart in error handling.
+A thrown connect error that reports a pipeline error means the Pop is invalid (unknown alias, bad component), while `no available server` is capacity or routing and worth a retry. Keep the two apart in error handling.
