@@ -52,6 +52,7 @@ skills/eyepop/
   references/on-premise.md instances and how runs route on that machine
   references/models.md     pretrained model catalog with label sets
   assets/pop.*.json        Pop documents for eyepop create deployment --pop
+  assets/macgyver.jpg      public-domain sample photo (U.S. Air Force) for a first inference
   assets/*.py              runnable Python templates for what the CLI cannot do: crop-then-classify from code, register an ability
   assets/env.example       the credentials those templates read
 evals/                     claude plugin eval cases and graders

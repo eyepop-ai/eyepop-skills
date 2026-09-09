@@ -41,12 +41,13 @@ Done when `scripts/doctor.sh` prints `status: READY`.
 
 ## 4. Pick some media
 
-Ask for an image or a short video on this machine, or an HTTP(S) URL. Something with a person in it makes the first result obvious. If they have nothing to hand, look for one (`~/Pictures`, `~/Desktop`, `~/Downloads`; JPEG, PNG, MP4), propose it, and wait for a yes.
+Ask for an image or a short video on this machine, or an HTTP(S) URL. Something with a person in it makes the first result obvious. If they have nothing to hand, use the sample that ships with the skill, `assets/macgyver.jpg`: Richard Dean Anderson at a podium, a public-domain U.S. Air Force photo with one person in it. The same file is online at https://raw.githubusercontent.com/eyepop-ai/eyepop-skills/main/skills/eyepop/assets/macgyver.jpg for a run from anywhere.
 
 ## 5. Run the first inference
 
 ```bash
-eyepop run --model eyepop.person:latest <media>
+eyepop run --model eyepop.person:latest <media>                 # their file or URL
+eyepop run --model eyepop.person:latest assets/macgyver.jpg     # the sample
 ```
 
 Say what the parts mean: `run` sends media to EyePop, `--model` names what to run, `eyepop.person:latest` is the pretrained person detector every account can use, and everything after the flags is media. Then run it with `--json` and walk through the result:
@@ -61,7 +62,7 @@ Say what the parts mean: `run` sends media to EyePop, `--model` names what to ru
 - No `objects`, or an empty list, means nothing was found. That is a successful run, not an error; try media with a person in it.
 - A video prints one such prediction per frame.
 
-Done when the user can point at a box in the output and say what it is.
+With the sample, expect `source_width` 505, `source_height` 640, and one `person` object near confidence 0.95. Done when the user can point at a box in the output and say what it is.
 
 ## 6. Show what is next
 

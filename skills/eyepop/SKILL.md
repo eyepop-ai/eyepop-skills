@@ -52,14 +52,14 @@ scripts/inventory.sh          # add json for machine-readable output
 
 It lists the pretrained models, the user's own abilities, the Pops, running deployments, on-premise instances, and datasets, each under the command that produced it. Read it before proposing anything: an existing deployment or instance is what the user's application already talks to, and their own abilities are the tasks they have already defined.
 
-Then confirm the account can actually run something. Use media the user names, or any HTTP(S) image URL they supply:
+Then confirm the account can actually run something. Use media the user names, an HTTP(S) URL they supply, or the sample that ships with the skill:
 
 ```bash
-eyepop run --model eyepop.person:latest <media> --json          # every account can run this
+eyepop run --model eyepop.person:latest assets/macgyver.jpg --json   # every account can run this
 eyepop run --session <deployment-uuid> <media> --json           # when a deployment exists
 ```
 
-Done when a `response` with `source_width` and `source_height` comes back. A response with no `objects` key, or an empty one, is still success: nothing was detected in that media.
+Done when a `response` with `source_width` and `source_height` comes back. A response with no `objects` key, or an empty one, is still success: nothing was detected in that media. The sample returns one `person` near confidence 0.95.
 
 ## 3. Run inference
 
@@ -137,6 +137,7 @@ When the user is building an application: Python for scripts, batch jobs, and da
 | `--prompt does not apply to <alias>` | An alias runs as a pipeline | Drop `--prompt`; the ability's own prompt runs |
 | Evaluation reports all-zero metrics and no error | Every asset hit the per-asset timeout | Shorter video assets, images, or an ability created with a lower `--fps`: [references/abilities.md](references/abilities.md#evaluate-against-ground-truth) |
 | A run bills cloud compute on an on-premise machine | `--model` named an ability, which is not on-premise aware | Use `--pop` |
+| A URL fails with `Resource not found. (error during pre-loading)` | The worker fetches URLs itself, and that host refused it (Wikimedia does) | Download the file and run it from disk |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
 | SDK connect error that reports a pipeline error | The Pop is invalid: unknown alias or bad component | Fix the Pop; `no available server` is the capacity error, retry that one |
 | Anything else | | `eyepop <command> --help`, https://docs.eyepop.ai/llms.txt, help@eyepop.ai |
