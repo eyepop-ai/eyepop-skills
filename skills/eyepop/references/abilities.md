@@ -41,9 +41,7 @@ There is no `patch ability` and a published ability is immutable. Create the nex
 ## Aliases
 
 - An alias must start with the account's **namespace prefix**. A rejection never names the prefix; read it off any existing alias in `eyepop get abilities --mine` or in the dashboard.
-- An ability that shows no ALIAS in `get abilities` was published without one and cannot be referenced by a Pop until the dashboard mints an alias for it.
 - A Python application that owns its ability registers it from code, which publishes with the alias and tags `latest` in one run: `assets/register_ability.py`, explained in [python-sdk.md](python-sdk.md#data-endpoint-datasets-ground-truth-vlm-abilities).
-- A new alias can take a little while to resolve on a worker; retry when the error mentions model uuids not found or an unresolved alias.
 
 ## Evaluate against ground truth
 

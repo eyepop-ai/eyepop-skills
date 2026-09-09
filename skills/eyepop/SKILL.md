@@ -18,7 +18,7 @@ EyePop.ai turns images, video, and live streams into structured JSON. One vocabu
 | **model** | Pretrained alias with a tag: `eyepop.person:latest` | `eyepop get models` |
 | **ability** | A prompt with a fixed label set, run by the shared vision-language model; referenced by its alias | ALIAS column of `eyepop get abilities --mine` |
 | **alias** | `<namespace>.<task>.<name>:latest`, how `run --model`, a Pop, and a deployment name an ability; `create ability --publish` prints it | `get abilities`, `get models` |
-| **Pop** | A pipeline of one or more models or abilities: a built-in handle (`people-common-objects`) or a JSON document you send by value | `eyepop get pops`, `assets/` |
+| **Pop** | A pipeline of one or more models or abilities: a built-in handle (`people-common-objects`), a Pop saved in the dashboard under `<namespace>.<name>:latest`, or a JSON document you send by value | `eyepop get pops`, `assets/` |
 | **target** | What a run uses: `--model`, `--pop`, or `--session`. Exactly one per run, and positional arguments are always media | |
 | **session** / **deployment** | Compute running a Pop. A deployment is a session kept warm behind a stable UUID | `eyepop get deployments` |
 | **instance** | The EyePop runtime installed on hardware you control | `eyepop get instances` |
@@ -68,7 +68,7 @@ eyepop run --model eyepop.person:latest image.jpg
 eyepop run --model eyepop.person:latest ./images --recursive --json
 eyepop run --model <your-namespace>.classify.helmet:latest image.jpg
 eyepop run --pop people-common-objects video.mp4
-eyepop run --pop <saved-pop-uuid> image.jpg
+eyepop run --pop <your-namespace>.<name>:latest image.jpg
 eyepop run --session <session-uuid> https://example.com/frame.jpg
 ```
 
@@ -86,7 +86,7 @@ Which field an ability fills: detection in `objects`, a label in `classes[0].cla
 ## Rules the CLI enforces
 
 - One target per run. `run` with no target and no media prints its help.
-- `--pop` takes what `eyepop get pops` lists: a built-in by its handle (`person`, `people-common-objects`, `vehicles-traffic-cam`), or a Pop saved in the dashboard by the UUID in its POP column (OWNER `mine`). Saved-Pop display names are refused, since they are neither unique nor stable, and a model alias is refused too. A Pop written by hand (`assets/pop.person.json`, `assets/pop.crop-forward.json`) goes to `create deployment --pop ./pop.json`, then runs with `--session`.
+- `--pop` takes what `eyepop get pops` lists: a built-in by its handle (`person`, `people-common-objects`, `vehicles-traffic-cam`) or a Pop saved in the dashboard by the alias in its POP column, `<your-namespace>.<name>:latest`. A Pop written by hand (`assets/pop.person.json`, `assets/pop.crop-forward.json`) goes to `create deployment --pop ./pop.json`, then runs with `--session`.
 - Prefer aliases. `--model eyepop.person:latest` or `--model <your-namespace>.<task>.<name>:latest`; a UUID is the fallback for a trained model that has no alias.
 - `--prompt` applies to a prompted VLM run only. A target that is an alias runs as a pipeline and refuses it.
 - `--json` works on every command that prints a table. `eyepop tui` refuses it; `update` and `instance logs` print text; `create deployment` and `patch deployment` print a bare session UUID either way.
@@ -106,7 +106,7 @@ eyepop patch deployment "$UUID" --pop ./pop-v2.json               # same UUID an
 eyepop delete deployment "$UUID" --yes
 ```
 
-`--pop` here takes a JSON or YAML file or an inline body; `--model <alias>` works for a single model. `run --session` and `delete deployment` accept a display name or a UUID prefix of at least 7 characters; `get deployments` and `patch deployment` need the full UUID. Deployments need a plan that includes them; a `403` on create means the current plan does not.
+`--pop` here takes a saved Pop alias, a JSON or YAML file, or an inline body; `--model <alias>` works for a single model. `run --session` and `delete deployment` accept a display name or a UUID prefix of at least 7 characters; `get deployments` and `patch deployment` need the full UUID. Deployments need a plan that includes them; a `403` on create means the current plan does not.
 
 ## Branches with their own reference
 
@@ -130,10 +130,8 @@ When the user is building an application: Python for scripts, batch jobs, and da
 | `Token expired` | Browser session lapsed | `eyepop auth login`, or set `EYEPOP_API_KEY` |
 | `get accounts` refuses, `auth status` says not logged in | Running under `EYEPOP_API_KEY` alone | Expected; `--account <uuid>` to create elsewhere |
 | `403` creating a deployment | The current plan does not include deployments | Choose a plan at https://dashboard.eyepop.ai |
-| An ability shows no ALIAS in `get abilities`, so a Pop cannot reference it | Published without an alias | Mint one in the dashboard: [references/abilities.md](references/abilities.md#aliases) |
 | An alias is rejected | It lacks the account's namespace prefix | Copy the prefix from an existing alias in `get abilities --mine` |
 | `--prompt does not apply to <alias>` | An alias runs as a pipeline | Drop `--prompt`; the ability's own prompt runs |
-| `--pop` says a name is a pop flow named by its UUID | Saved-Pop names are not resolvable | Use the UUID from the POP column of `get pops` |
 | Evaluation reports all-zero metrics and no error | Every asset hit the per-asset timeout | Shorter video assets, images, or an ability created with a lower `--fps`: [references/abilities.md](references/abilities.md#evaluate-against-ground-truth) |
 | A run bills cloud compute on an on-premise machine | `--model` named an ability, which is not on-premise aware | Use `--pop` |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
