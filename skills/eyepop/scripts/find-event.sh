@@ -139,6 +139,30 @@ run_frames(){ # dir prompt outfile
     || { echo "eyepop run failed:" >&2; tail -3 "$3.err" >&2; return 1; }
   python3 -c "$PARSE" < "$3.json" > "$3.tsv"
 }
+# --json for the exits that stop after pass 1: --coarse-only, and not found
+# (given the descriptions, which become `contains`).
+pass1_json(){ # [desc.tsv]
+  python3 - "$OUTDIR/coarse_res.tsv" "$COARSE_FPS" "$LABEL" "$OUTDIR" "${1:-}" <<'PY'
+import sys,re,json
+tsv,fps,label,outdir,desc=sys.argv[1],float(sys.argv[2]),sys.argv[3],sys.argv[4],sys.argv[5]
+def rows(path):
+    for line in open(path):
+        f,out,err=(line.rstrip("\n").split("\t")+["",""])[:3]
+        m=re.match(r"c(\d+)\.jpg",f)
+        if m: yield (int(m.group(1))-1)/fps, out
+def yes(out):
+    w=re.findall(r"[A-Za-z]+",out)
+    return bool(w and w[0].upper().startswith("YES"))
+frames=sorted(({"t":t,"hit":yes(o)} for t,o in rows(tsv)), key=lambda x: x["t"])
+hits=[x["t"] for x in frames if x["hit"]]
+doc={"label":label,"onset":hits[0] if hits else None,"end":hits[-1] if hits else None,
+     "precision_s":1/fps if hits else None,"confirmed":False,"runs":[],
+     "frames":frames,"workdir":outdir}
+if not hits:
+    doc["contains"]=[{"t":t,"text":o} for t,o in sorted(rows(desc)) if o] if desc else []
+print(json.dumps(doc,indent=2))
+PY
+}
 
 # ---- pass 1: coarse scan over the whole video ------------------------------
 if [ -z "$COARSE_FPS" ]; then
@@ -202,9 +226,11 @@ fs=sorted(f for f in os.listdir(src) if f.endswith(".jpg"))
 pick=[fs[i*len(fs)//6] for i in range(6)] if len(fs)>=6 else fs
 for f in dict.fromkeys(pick): shutil.copy(os.path.join(src,f),os.path.join(dst,f))
 PY
+  DESC=""
   if run_frames "$OUTDIR/sample" "$DESC_PROMPT" "$OUTDIR/desc_res"; then
+    DESC="$OUTDIR/desc_res.tsv"
     say ""; say "What the video does contain:"
-    python3 - "$OUTDIR/desc_res.tsv" "$COARSE_FPS" <<'PY'
+    [ "$JSON_OUT" -eq 1 ] || python3 - "$DESC" "$COARSE_FPS" <<'PY'
 import sys,re
 for line in sorted(open(sys.argv[1])):
     f,out,err=(line.rstrip("\n").split("\t")+["",""])[:3]
@@ -213,10 +239,11 @@ for line in sorted(open(sys.argv[1])):
 PY
     say ""; say "If that describes your event in other words, rerun with that wording."
   fi
+  [ "$JSON_OUT" -eq 0 ] || pass1_json "$DESC"
   say "workdir: $OUTDIR"; exit 3
 fi
 
-[ "$COARSE_ONLY" -eq 1 ] && { say "hits from ${FIRST}s to ${LAST}s"; say "workdir: $OUTDIR"; exit 0; }
+[ "$COARSE_ONLY" -eq 1 ] && { [ "$JSON_OUT" -eq 0 ] || pass1_json; say "hits from ${FIRST}s to ${LAST}s"; say "workdir: $OUTDIR"; exit 0; }
 
 # ---- pass 2: fine scan around the first hit --------------------------------
 read -r FSTART SPAN FINE_FPS < <(python3 -c "
@@ -235,11 +262,11 @@ rm -f "$OUTDIR/fine"/*.jpg 2>/dev/null
 ffmpeg -v error -y -ss "$FSTART" -t "$SPAN" -i "$VIDEO" -vf "fps=$FINE_FPS" -q:v 3 "$OUTDIR/fine/f%04d.jpg" </dev/null
 run_frames "$OUTDIR/fine" "$HIT_PROMPT" "$OUTDIR/fine_res" || exit 1
 
-python3 - "$OUTDIR/fine_res.tsv" "$FSTART" "$FINE_FPS" "$LABEL" "$JSON_OUT" "$OUTDIR" "$FIRST" "$LAST" <<'PY'
+python3 - "$OUTDIR/fine_res.tsv" "$FSTART" "$FINE_FPS" "$LABEL" "$JSON_OUT" "$OUTDIR" "$FIRST" "$LAST" "$COARSE_FPS" <<'PY'
 import sys,re,json,os
 tsv,start,fps,label=sys.argv[1],float(sys.argv[2]),float(sys.argv[3]),sys.argv[4]
 as_json,outdir=sys.argv[5]=="1",sys.argv[6]
-c_first,c_last=float(sys.argv[7]),float(sys.argv[8])
+c_first,c_last,c_fps=float(sys.argv[7]),float(sys.argv[8]),float(sys.argv[9])
 rows=[]
 for line in open(tsv):
     f,out,err=(line.rstrip("\n").split("\t")+["",""])[:3]
@@ -256,7 +283,7 @@ for t,yes,_ in rows:
 if cur is not None: runs.append(cur)
 onset = runs[0][0] if runs else c_first
 end   = max(r[1] for r in runs) if runs else c_last
-prec  = 1/fps if runs else 1/float(os.environ.get("CFPS","1"))
+prec  = 1/fps if runs else 1/c_fps
 if not as_json:
     print("\npass 2 frames:")
     for t,yes,err in rows:

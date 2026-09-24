@@ -9,7 +9,8 @@ scripts/find-event.sh video.mp4 "an explosion or fireball" --label explosion
 
 It prints a per-frame timeline, an onset in seconds with its error bar, and the path to a
 contact sheet. `--json` emits `{onset, end, precision_s, confirmed, frames[]}` for a
-program. Exit `0` found, `3` not found, `1` error.
+program, also after `--coarse-only`; when nothing is found, `onset` is null and
+`contains[]` says what the video shows instead. Exit `0` found, `3` not found, `1` error.
 
 ## Why stills and not the video
 
