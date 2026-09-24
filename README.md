@@ -53,7 +53,7 @@ skills/eyepop/
   references/node-sdk.md   Node SDK
   references/on-premise.md instances and how runs route on that machine
   references/models.md     pretrained model catalog with label sets
-  references/video-events.md finding an event in time, and the frame-sampling, one-class, and carrier-config traps
+  references/video-events.md how find-event.sh works, and how frame sampling, one-class abilities, and prompted runs can mislead
   assets/pop.*.json        Pop documents for eyepop create deployment --pop
   assets/macgyver.jpg      public-domain sample photo (U.S. Air Force) for a first inference
   assets/*.py              runnable Python templates for what the CLI cannot do: crop-then-classify from code, register an ability

@@ -89,21 +89,24 @@ Which field an ability fills: detection in `objects`, a label in `classes[0].cla
 
 ## 4. Locate an event in time
 
-"When does X happen in this video?" is answered from **still frames**, never by asking a VLM
-about the clip as a whole:
+"When does X happen in this video?" is answered from **still frames**, one at a time, not by
+asking an ability about the whole clip:
 
 ```bash
 scripts/find-event.sh video.mp4 "an explosion or fireball" --label explosion
 ```
 
-It scans the whole clip at a budgeted frame rate, refines around the first hit, prints the
-onset in seconds with its error bar, and writes a contact sheet to confirm against. `--json`
-feeds a program. Exit `3` is not-found, and it then describes what the video *does* contain so
-the wording can be fixed rather than guessed at again. Nothing is created per call.
+It samples stills across the whole video, looks again at a higher rate around the first one that
+shows the event, and prints when the event starts, in seconds with an error bar, plus a contact
+sheet to confirm it by eye. `--json` gives the same result to a program. Exit `3` means no frame
+showed the event; the script then describes what the video does show, so the wording can be
+changed. It needs `ffmpeg` and `ffprobe` on the machine; if they are missing, offer to install
+`ffmpeg`, which includes `ffprobe`, the same way as the CLI in step 1.
 
-The whole-clip alternative is the thing that looks right and is wrong: on a clip whose blast is
-at 10.45s, a `find-events` run answered `00:07 - 00:13`, and the same run at `--fps 4` answered
-`no event`. [references/video-events.md](references/video-events.md) has the measurements.
+The first run creates one ability in the user's account, `agent.describe.prompt-carrier`, and
+later runs reuse it; tell the user before that first run. A question about a whole clip can miss
+a brief event or report the wrong time range; [references/video-events.md](references/video-events.md)
+explains why, and how to tune the search.
 
 ## Rules the CLI enforces
 
@@ -140,7 +143,7 @@ eyepop delete deployment "$UUID" --yes
 | Build a Node, TypeScript, browser, or React Native application: the same, plus canvas rendering | [references/node-sdk.md](references/node-sdk.md) |
 | Stand up or operate an on-premise instance; how runs route on that machine | [references/on-premise.md](references/on-premise.md) |
 | Pick a pretrained model; label sets | [references/models.md](references/models.md) |
-| Find when something happens in a video; per-frame timing, and the frame-sampling, one-class and carrier-config traps | [references/video-events.md](references/video-events.md) |
+| Find when something happens in a video; per-frame timing, and how video frame sampling, one-class abilities, and prompted runs can mislead | [references/video-events.md](references/video-events.md) |
 | Command map, scripting flags, environment variables, `run` and `evaluate` details, ability flags | [references/cli.md](references/cli.md) |
 
 When the user is building an application: Python for scripts, batch jobs, and data work (`pip install eyepop`, `EyePopSdk.sync_worker(pop=pop)`); Node for services, browsers, and React Native (`npm install @eyepop.ai/eyepop`, `EyePop.workerEndpoint({ pop }).connect()`). Both take the Pop when the session opens and read `EYEPOP_API_KEY` from the environment. For a one-off question about some media, the answer is still `eyepop run`.
@@ -163,8 +166,8 @@ When the user is building an application: Python for scripts, batch jobs, and da
 | A URL fails with `Resource not found. (error during pre-loading)` | The worker fetches URLs itself, and that host refused it (Wikimedia does) | Download the file and run it from disk |
 | Instance is not responding | Instance stopped; there is no cloud fallback | `eyepop instance start` |
 | SDK connect error that reports a pipeline error | The Pop is invalid: unknown alias or bad component | Fix the Pop; `no available server` is the capacity error, retry that one |
-| A video run answers `no event` for a clip that plainly contains the event | Video runs sample far fewer frames than `duration x fps`, so a higher `--fps` covers *less* of the clip | Work on stills: `scripts/find-event.sh`; [references/video-events.md](references/video-events.md) |
+| A video run answers `no event`, or the wrong time range, for a clip that contains the event | A video run judges a limited number of frames, often far fewer than the clip's duration times the ability's `--fps` | Work on stills: `scripts/find-event.sh`; [references/video-events.md](references/video-events.md) |
 | `classes[0]` is confident but contradicts `raw_output` | The ability has a single `--class`, so every answer maps onto it | Use two or more classes, or none; trust `raw_output` |
-| A prompted run's answer is cut off mid-sentence | A prompted run inherits the carrier ability's `max_new_tokens` and `image_size` | Carry prompts on an ability with room, e.g. the one `find-event.sh` creates |
-| `--publish` printed no alias, and `--model <alias>:latest` is not found | Publishing does not always mint an alias | Run by UUID; read identifiers from `eyepop get abilities --mine --json`, not from the table |
+| A `--prompt` run's answer stops mid-sentence | A prompted run keeps the ability's `max_new_tokens` and `image_size` | Prompt through an ability with a larger `max_new_tokens`, such as the one `scripts/find-event.sh` creates |
+| `--publish` printed no alias, and `--model <alias>:latest` is not found | Publishing does not always create an alias | Run by UUID; read identifiers from `eyepop get abilities --mine --json`, not from the table |
 | Anything else | | `eyepop <command> --help`, https://docs.eyepop.ai/llms.txt, help@eyepop.ai |

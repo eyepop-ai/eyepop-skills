@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 # find-event.sh - Answer "when does X happen in this video?" in seconds.
 #
-# Works on STILL FRAMES, never on the video file. A VLM asked "is this X?" about a
-# whole clip is unreliable - it will answer "no event" for a clip it can describe
-# perfectly - while the same model judging one frame at a time is steady. Frames
-# also carry exact timestamps, so the answer needs no trust in model-reported time.
+# Works on still frames, not on the video file. A question about a whole clip can
+# miss a brief event or report the wrong time; judged one frame at a time, the
+# answers are steadier, and each frame's timestamp is exact, so the time never
+# depends on what the model reports.
 #
-#   pass 1  stills across the whole video at a budgeted rate -> which seconds hit
-#   pass 2  stills at high rate around the first hit         -> the onset second
-#   pass 3  a contact sheet, so the answer can be eyeballed before it is believed
+#   pass 1  stills across the whole video at a budgeted rate -> which seconds show it
+#   pass 2  stills at a higher rate around the first hit     -> the onset
+#   pass 3  a contact sheet around the onset, to check the answer by eye
 #
-# Runs are PROMPTED against a carrier ability: nothing is created per call, and a
-# prompted run returns free text in `texts`, so no class transform can invent a
-# confident wrong label. See references/video-events.md.
+# Every question is a prompted run against one ability, which the first run
+# creates in your account (agent.describe.prompt-carrier) and later runs reuse.
+# A prompted run answers in free text, so no class can turn "no" into a
+# confident label. See references/video-events.md.
+#
+# Needs: the eyepop CLI, signed in; ffmpeg and ffprobe; python3.
 #
 # Usage: find-event.sh VIDEO "what to look for" [options]
 set -uo pipefail
@@ -71,10 +74,10 @@ mkdir -p "$OUTDIR/coarse" "$OUTDIR/fine"
 DUR=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$VIDEO") || die "ffprobe failed"
 [ -n "$DUR" ] || die "could not read duration of $VIDEO"
 
-# ---- carrier ability (ours, created once) ----------------------------------
-# A prompted run ignores the carrier's PROMPT and class transform, but still
-# inherits its CONFIG (image_size, max_new_tokens). Borrowing a random ability
-# silently truncates answers, so use one we own with known-good settings.
+# ---- the ability every question runs on, created once ----------------------
+# A prompted run replaces the ability's prompt and skips its classes, but keeps
+# its image_size and max_new_tokens, so an arbitrary ability can cut answers
+# short. Use one with known settings.
 CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/eyepop-skill"; mkdir -p "$CACHE"
 CARRIER_NAME="agent.describe.prompt-carrier"
 abilities_json(){ eyepop get abilities --mine --json 2>/dev/null; }
@@ -100,18 +103,18 @@ sys.exit(0 if any(a.get("uuid")==want for a in items) else 1)
 [ -n "$CARRIER" ] && { uuid_exists "$CARRIER" || CARRIER=""; }
 [ -z "$CARRIER" ] && CARRIER=$(uuid_by_name "$CARRIER_NAME")
 if [ -z "$CARRIER" ]; then
-  say "note: creating the prompt-carrier ability once ($CARRIER_NAME); reused from now on"
+  say "note: creating the ability $CARRIER_NAME in your account; later runs reuse it"
   eyepop create ability --name "$CARRIER_NAME" \
-    --description "Generic carrier for prompted one-off VLM runs (created by find-event.sh). Safe to keep." \
+    --description "Runs one-off prompts for find-event.sh in the eyepop skill. Safe to keep." \
     --prompt 'Describe what is happening.' --image-size 640 --max-new-tokens 60 --publish >/dev/null 2>&1
   CARRIER=$(uuid_by_name "$CARRIER_NAME")
 fi
-[ -n "$CARRIER" ] || die "could not resolve a carrier ability; pass --carrier UUID"
+[ -n "$CARRIER" ] || die "could not find or create the ability $CARRIER_NAME; pass --carrier UUID"
 printf '%s' "$CARRIER" > "$CACHE/carrier"
 
 HIT_PROMPT="Look at this single still frame. Does it show ${WHAT}, actively happening in this frame?
 Answer with exactly one word: YES or NO.
-Answer NO for the calm scene before it starts, and for smoke, dust or aftermath lingering once it is over."
+Answer NO for frames from before it starts, and for anything that lingers after it is over."
 DESC_PROMPT='Describe what is happening in this frame in one short sentence.'
 
 # ---- helpers ---------------------------------------------------------------
